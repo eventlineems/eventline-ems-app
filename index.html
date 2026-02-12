@@ -108,6 +108,10 @@ auth.onAuthStateChanged(user => {
     document.getElementById("login").classList.add("hidden");
     document.getElementById("app").classList.remove("hidden");
     loadIncidentNumber();
+
+    if (user.email === "eventlineems@gmail.com") {
+      document.getElementById("adminBtn").classList.remove("hidden");
+    }
   }
 });
 
@@ -207,3 +211,28 @@ signaturePad.clear();
   <div class="section">All Reports</div>
   <div id="reportList"></div>
 </div>
+async function loadReports(){
+  const panel = document.getElementById("adminPanel");
+  const list = document.getElementById("reportList");
+
+  panel.classList.remove("hidden");
+  list.innerHTML = "Loading...";
+
+  const snapshot = await db.collection("reports")
+    .orderBy("incident","desc")
+    .get();
+
+  list.innerHTML = "";
+
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    list.innerHTML += `
+      <div style="border:1px solid orange;padding:10px;margin-bottom:10px;">
+        <strong>Incident:</strong> EEMS-2026-${String(data.incident).padStart(4,'0')}<br>
+        <strong>Patient:</strong> ${data.patientName}<br>
+        <strong>Provider:</strong> ${data.provider}<br>
+        <strong>Disposition:</strong> ${data.disposition}<br>
+      </div>
+    `;
+  });
+}
