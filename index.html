@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Eventline EMS</title>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+  <style>
+    body { font-family: Arial; padding:20px; max-width:500px; margin:auto;}
+    input, textarea, button { width:100%; margin-bottom:10px; padding:8px;}
+    .hidden { display:none; }
+  </style>
+</head>
+<body>
+
+<h2>Eventline EMS</h2>
+
+<div id="login">
+  <h3>Login</h3>
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+  <button onclick="login()">Login</button>
+</div>
+
+<div id="app" class="hidden">
+  <h3 id="incidentNumber"></h3>
+  <input id="eventName" placeholder="Event Name">
+  <input id="patientName" placeholder="Patient Name">
+  <textarea id="complaint" placeholder="Chief Complaint"></textarea>
+  <button onclick="submitReport()">Submit Report</button>
+</div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBZZwSeest2Z2PhCw1QDlqGIfHteZcT-oI",
+  authDomain: "eventline-ems.firebaseapp.com",
+  projectId: "eventline-ems",
+  storageBucket: "eventline-ems.firebasestorage.app",
+  messagingSenderId: "315455553953",
+  appId: "1:315455553953:web:5c25df98c334409af2cbe0"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+auth.onAuthStateChanged(user => {
+  if (user) {
+    document.getElementById("login").classList.add("hidden");
+    document.getElementById("app").classList.remove("hidden");
+    loadIncidentNumber();
+  }
+});
+
+function login() {
+  auth.signInWithEmailAndPassword(
+    document.getElementById("email").value,
+    document.getElementById("password").value
+  ).catch(e => alert(e.message));
+}
+
+async function loadIncidentNumber() {
+  const ref = db.collection("settings").doc("counter");
+  const doc = await ref.get();
+  let number = 1;
+  if (doc.exists) {
+    number = doc.data().value + 1;
+  }
+  document.getElementById("incidentNumber").innerText =
+    "Incident #: EEMS-2026-" + String(number).padStart(4,'0');
+}
+
+async function submitReport() {
+  const ref = db.collection("settings").doc("counter");
+  const doc = await ref.get();
+  let number = 1;
+  if (doc.exists) number = doc.data().value + 1;
+
+  await ref.set({ value: number });
+
+  await db.collection("reports").add({
+    incident: number,
+    event: document.getElementById("eventName").value,
+    patient: document.getElementById("patientName").value,
+    complaint: document.getElementById("complaint").value,
+    user: auth.currentUser.email,
+    timestamp: new Date()
+  });
+
+  alert("Report submitted.");
+  loadIncidentNumber();
+}
+</script>
+
+</body>
+</html>
