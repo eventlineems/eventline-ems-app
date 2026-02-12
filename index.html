@@ -190,9 +190,11 @@ emailjs.send("service_xq5bpxo","template_8t361cc",{
   timestamp: new Date().toLocaleString()
 });
 
-    alert("Report Submitted & Emailed");
-    loadIncidentNumber();
-  };
+alert("Report "+incidentID+" Submitted Successfully");
+
+document.querySelectorAll("input, textarea").forEach(el => el.value = "");
+document.getElementById("disposition").selectedIndex = 0;
+signaturePad.clear();
 
 }
 </script>
