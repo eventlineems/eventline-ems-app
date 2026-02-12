@@ -166,12 +166,29 @@ async function submitReport(){
   reader.onloadend=function(){
     const base64data=reader.result.split(',')[1];
 
-    emailjs.send("service_xq5bpxo","template_8t361cc",{
-      incident:incidentID,
-      patient:patientName.value,
-      provider:auth.currentUser.email,
-      message:"New EMS Report Submitted"
-    });
+emailjs.send("service_xq5bpxo","template_8t361cc",{
+  incident: incidentID,
+  event: eventName.value,
+  unit: unitId.value,
+  patient: patientName.value,
+  dob: dob.value,
+  age: age.value,
+  sex: sex.value,
+  address: address.value,
+  phone: phone.value,
+  complaint: complaint.value,
+  hpi: hpi.value,
+  sample: sample.value,
+  vitals: vitals.value,
+  assessment: assessment.value,
+  treatment: treatment.value,
+  response: response.value,
+  disposition: disposition.value,
+  agency: agency.value,
+  receiving: receivingName.value,
+  provider: auth.currentUser.email,
+  timestamp: new Date().toLocaleString()
+});
 
     alert("Report Submitted & Emailed");
     loadIncidentNumber();
