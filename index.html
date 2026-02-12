@@ -108,10 +108,6 @@ auth.onAuthStateChanged(user => {
     document.getElementById("login").classList.add("hidden");
     document.getElementById("app").classList.remove("hidden");
     loadIncidentNumber();
-
-    if (user.email === "eventlineems@gmail.com") {
-      document.getElementById("adminBtn").classList.remove("hidden");
-    }
   }
 });
 
@@ -170,69 +166,19 @@ async function submitReport(){
   reader.onloadend=function(){
     const base64data=reader.result.split(',')[1];
 
-emailjs.send("service_xq5bpxo","template_8t361cc",{
-  incident: incidentID,
-  event: eventName.value,
-  unit: unitId.value,
-  patient: patientName.value,
-  dob: dob.value,
-  age: age.value,
-  sex: sex.value,
-  address: address.value,
-  phone: phone.value,
-  complaint: complaint.value,
-  hpi: hpi.value,
-  sample: sample.value,
-  vitals: vitals.value,
-  assessment: assessment.value,
-  treatment: treatment.value,
-  response: response.value,
-  disposition: disposition.value,
-  agency: agency.value,
-  receiving: receivingName.value,
-  provider: auth.currentUser.email,
-  timestamp: new Date().toLocaleString()
-});
+    emailjs.send("service_xq5bpxo","template_8t361cc",{
+      incident:incidentID,
+      patient:patientName.value,
+      provider:auth.currentUser.email,
+      message:"New EMS Report Submitted"
+    });
 
-alert("Report "+incidentID+" Submitted Successfully");
-
-document.querySelectorAll("input, textarea").forEach(el => el.value = "");
-document.getElementById("disposition").selectedIndex = 0;
-signaturePad.clear();
+    alert("Report Submitted & Emailed");
+    loadIncidentNumber();
+  };
 
 }
 </script>
 
 </body>
 </html>
-<button id="adminBtn" class="hidden" onclick="loadReports()">Admin Panel</button>
-
-<div id="adminPanel" class="hidden">
-  <div class="section">All Reports</div>
-  <div id="reportList"></div>
-</div>
-async function loadReports(){
-  const panel = document.getElementById("adminPanel");
-  const list = document.getElementById("reportList");
-
-  panel.classList.remove("hidden");
-  list.innerHTML = "Loading...";
-
-  const snapshot = await db.collection("reports")
-    .orderBy("incident","desc")
-    .get();
-
-  list.innerHTML = "";
-
-  snapshot.forEach(doc => {
-    const data = doc.data();
-    list.innerHTML += `
-      <div style="border:1px solid orange;padding:10px;margin-bottom:10px;">
-        <strong>Incident:</strong> EEMS-2026-${String(data.incident).padStart(4,'0')}<br>
-        <strong>Patient:</strong> ${data.patientName}<br>
-        <strong>Provider:</strong> ${data.provider}<br>
-        <strong>Disposition:</strong> ${data.disposition}<br>
-      </div>
-    `;
-  });
-}
